@@ -58,49 +58,58 @@ if (authForm) {
         const email = emailInput.value;
         const password = passwordInput.value;
 
-        if (currentView === 'signup') {
-            const { data, error } = await client.auth.signUp({
-                email,
-                password,
-            });
+        try {
+            if (currentView === 'signup') {
+                const { data, error } = await client.auth.signUp({
+                    email,
+                    password,
+                });
 
-            if (error) {
-                showToast(error.message, 'error');
+                if (error) {
+                    showToast(error.message, 'error');
+                } else {
+                    showToast('Signup successful! Check your email for verification.', 'success');
+                    if (data?.session) {
+                        window.location.href = './dashboard.html';
+                    }
+                }
             } else {
-                showToast('Signup successful! Check your email for verification.', 'success');
-                if (data?.session) {
-                    window.location.href = './dashboard.html';
+                const { error } = await client.auth.signInWithPassword({
+                    email,
+                    password,
+                });
+
+                if (error) {
+                    showToast(error.message, 'error');
+                } else {
+                    showToast('Successfully logged in!', 'success');
                 }
             }
-        } else {
-            const { error } = await client.auth.signInWithPassword({
-                email,
-                password,
-            });
-
-            if (error) {
-                showToast(error.message, 'error');
-            } else {
-                showToast('Successfully logged in!', 'success');
-            }
+        } catch (err) {
+            showToast(err.message || 'An unexpected error occurred.', 'error');
+            console.error('Auth Error:', err);
+        } finally {
+            setLoading(submitBtn, false);
         }
-        
-        setLoading(submitBtn, false);
     });
 }
 
 // Handle Google OAuth
 if (googleBtn) {
     googleBtn.addEventListener('click', async () => {
-        const { error } = await client.auth.signInWithOAuth({
-            provider: 'google',
-            options: {
-                redirectTo: window.location.origin + window.location.pathname.replace('index.html', '') + 'dashboard.html'
-            }
-        });
+        try {
+            const { error } = await client.auth.signInWithOAuth({
+                provider: 'google',
+                options: {
+                    redirectTo: window.location.origin + window.location.pathname.replace('index.html', '') + 'dashboard.html'
+                }
+            });
 
-        if (error) {
-            showToast(error.message, 'error');
+            if (error) {
+                showToast(error.message, 'error');
+            }
+        } catch (err) {
+            showToast(err.message || 'An unexpected error occurred.', 'error');
         }
     });
 }
@@ -113,16 +122,20 @@ if (forgotForm) {
 
         const email = resetEmailInput.value;
 
-        const { error } = await client.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin + window.location.pathname,
-        });
+        try {
+            const { error } = await client.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.origin + window.location.pathname,
+            });
 
-        if (error) {
-            showToast(error.message, 'error');
-        } else {
-            showToast('Password reset link sent to your email.', 'success');
+            if (error) {
+                showToast(error.message, 'error');
+            } else {
+                showToast('Password reset link sent to your email.', 'success');
+            }
+        } catch (err) {
+            showToast(err.message || 'An unexpected error occurred.', 'error');
+        } finally {
+            setLoading(resetBtn, false);
         }
-        
-        setLoading(resetBtn, false);
     });
 }

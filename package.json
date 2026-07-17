@@ -1,0 +1,27 @@
+{
+  "name": "final-authentication-testing-with-sign-up-with-google-and-even-verification-built-by-agent",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AIEterprise/Final-authentication-testing-with-sign-up-with-Google-and-even-verification-built-by-agent.git"
+  },
+  "keywords": [],
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/AIEterprise/Final-authentication-testing-with-sign-up-with-Google-and-even-verification-built-by-agent/issues"
+  },
+  "homepage": "https://github.com/AIEterprise/Final-authentication-testing-with-sign-up-with-Google-and-even-verification-built-by-agent#readme",
+  "dependencies": {
+    "@insforge/sdk": "^1.4.5",
+    "@studio-freight/lenis": "^1.0.42",
+    "gsap": "^3.15.0"
+  },
+  "devDependencies": {
+    "vite": "^8.1.5"
+  }
+}
