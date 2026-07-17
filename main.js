@@ -79,7 +79,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 // Switch between Login and Signup
-toggleAuthBtn.addEventListener('click', (e) => {
+function handleToggleAuth(e) {
     e.preventDefault();
     currentView = currentView === 'login' ? 'signup' : 'login';
     
@@ -103,7 +103,7 @@ toggleAuthBtn.addEventListener('click', (e) => {
             }
             
             // Re-attach event listener to dynamically changed HTML
-            document.getElementById('toggle-auth').addEventListener('click', arguments.callee);
+            document.getElementById('toggle-auth').addEventListener('click', handleToggleAuth);
             
             gsap.fromTo(['.panel-header > *', '.auth-form > *'], 
                 { opacity: 0, y: 10 },
@@ -111,7 +111,8 @@ toggleAuthBtn.addEventListener('click', (e) => {
             );
         }
     });
-});
+}
+toggleAuthBtn.addEventListener('click', handleToggleAuth);
 
 // Show Forgot Password View
 forgotLink.addEventListener('click', (e) => {
