@@ -1,11 +1,14 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient } from "@insforge/sdk";
 import { showToast, currentView } from './main.js';
 
 // InsForge API configuration
 const API_URL = "https://7d5k44d3.ap-southeast.insforge.app";
 const API_KEY = "ik_b05042e70e14e7db870918f9754a7026";
 
-export const client = createClient(API_URL, API_KEY);
+export const client = createClient({
+    baseUrl: API_URL,
+    anonKey: API_KEY
+});
 
 // DOM Elements
 const authForm = document.getElementById('auth-form');
@@ -29,11 +32,14 @@ client.auth.getSession().then(({ data: { session } }) => {
 // Listen for auth state changes
 client.auth.onAuthStateChange((event, session) => {
     if (event === 'SIGNED_IN' && session) {
-        window.location.href = './dashboard.html';
+        if (!window.location.pathname.includes('dashboard.html')) {
+            window.location.href = './dashboard.html';
+        }
     }
 });
 
 function setLoading(button, isLoading) {
+    if (!button) return;
     if (isLoading) {
         button.classList.add('loading');
         button.disabled = true;
@@ -44,76 +50,79 @@ function setLoading(button, isLoading) {
 }
 
 // Handle Email/Password Signup and Login
-authForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    setLoading(submitBtn, true);
+if (authForm) {
+    authForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        setLoading(submitBtn, true);
 
-    const email = emailInput.value;
-    const password = passwordInput.value;
+        const email = emailInput.value;
+        const password = passwordInput.value;
 
-    if (currentView === 'signup') {
-        const { data, error } = await client.auth.signUp({
-            email,
-            password,
-        });
+        if (currentView === 'signup') {
+            const { data, error } = await client.auth.signUp({
+                email,
+                password,
+            });
 
-        if (error) {
-            showToast(error.message, 'error');
+            if (error) {
+                showToast(error.message, 'error');
+            } else {
+                showToast('Signup successful! Check your email for verification.', 'success');
+                if (data?.session) {
+                    window.location.href = './dashboard.html';
+                }
+            }
         } else {
-            showToast('Signup successful! Check your email for verification.', 'success');
-            if (data?.session) {
-                // Instantly logged in
-                window.location.href = './dashboard.html';
+            const { error } = await client.auth.signInWithPassword({
+                email,
+                password,
+            });
+
+            if (error) {
+                showToast(error.message, 'error');
+            } else {
+                showToast('Successfully logged in!', 'success');
             }
         }
-    } else {
-        // Login
-        const { error } = await client.auth.signInWithPassword({
-            email,
-            password,
+        
+        setLoading(submitBtn, false);
+    });
+}
+
+// Handle Google OAuth
+if (googleBtn) {
+    googleBtn.addEventListener('click', async () => {
+        const { error } = await client.auth.signInWithOAuth({
+            provider: 'google',
+            options: {
+                redirectTo: window.location.origin + window.location.pathname.replace('index.html', '') + 'dashboard.html'
+            }
+        });
+
+        if (error) {
+            showToast(error.message, 'error');
+        }
+    });
+}
+
+// Handle Forgot Password
+if (forgotForm) {
+    forgotForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        setLoading(resetBtn, true);
+
+        const email = resetEmailInput.value;
+
+        const { error } = await client.auth.resetPasswordForEmail(email, {
+            redirectTo: window.location.origin + window.location.pathname,
         });
 
         if (error) {
             showToast(error.message, 'error');
         } else {
-            showToast('Successfully logged in!', 'success');
-            // onAuthStateChange handles redirect
+            showToast('Password reset link sent to your email.', 'success');
         }
-    }
-    
-    setLoading(submitBtn, false);
-});
-
-// Handle Google OAuth
-googleBtn.addEventListener('click', async () => {
-    const { error } = await client.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-            redirectTo: window.location.origin + window.location.pathname.replace('index.html', '') + 'dashboard.html'
-        }
+        
+        setLoading(resetBtn, false);
     });
-
-    if (error) {
-        showToast(error.message, 'error');
-    }
-});
-
-// Handle Forgot Password
-forgotForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    setLoading(resetBtn, true);
-
-    const email = resetEmailInput.value;
-
-    const { error } = await client.auth.resetPasswordForEmail(email, {
-        redirectTo: window.location.origin + window.location.pathname,
-    });
-
-    if (error) {
-        showToast(error.message, 'error');
-    } else {
-        showToast('Password reset link sent to your email.', 'success');
-    }
-    
-    setLoading(resetBtn, false);
-});
+}
