@@ -1,4 +1,4 @@
-import { createClient } from "@insforge/sdk";
+import { createClient } from "https://esm.sh/@insforge/sdk@1.4.5";
 import { showToast, currentView } from './main.js?v=3';
 
 // InsForge API configuration

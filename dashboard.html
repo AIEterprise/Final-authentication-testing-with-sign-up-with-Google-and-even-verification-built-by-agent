@@ -7,14 +7,15 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
-    <!-- Resolve bare specifier for InsForge SDK in browser -->
-    <script type="importmap">
-      {
-        "imports": {
-          "@insforge/sdk": "https://esm.sh/@insforge/sdk@1.4.5"
-        }
-      }
+    <!-- Global Error Handler for Diagnostics -->
+    <script>
+      window.onerror = function (message, url, line, col, error) {
+        alert("CRITICAL ERROR: " + message + "\nAt: " + url + ":" + line + ":" + col);
+        return false;
+      };
+      window.addEventListener('unhandledrejection', function (event) {
+        alert("UNHANDLED REJECTION: " + event.reason);
+      });
     </script>
     
     <link rel="stylesheet" href="./style.css">
