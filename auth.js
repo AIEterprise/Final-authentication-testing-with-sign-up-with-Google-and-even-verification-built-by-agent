@@ -1,5 +1,5 @@
 import { createClient } from "@insforge/sdk";
-import { showToast, currentView } from './main.js';
+import { showToast, currentView } from './main.js?v=3';
 
 // InsForge API configuration
 const API_URL = "https://7d5k44d3.ap-southeast.insforge.app";
